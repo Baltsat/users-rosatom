@@ -9,6 +9,7 @@
 ```bash
 python train.py && python eval.py
 ```
+// TODO: docker + streamlit
 
 # Используемое решение
 
