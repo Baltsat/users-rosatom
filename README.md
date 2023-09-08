@@ -1,4 +1,5 @@
-![logo](https://github.com/Baltsat/users-rosatom/images/logo.png)
+
+![logo](https://github.com/Baltsat/users-rosatom/assets/42536677/8b3b5aa5-b56b-4c83-8681-6ca52d15f972)
 
 
 # Улучшение представлений результатов в сервисе «Мой голос» от команды Users
