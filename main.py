@@ -103,55 +103,56 @@ else:
     if (json_data):
         df = clusterRelese(json_data)
 
-    if implementation_choice == "Список кластеров":
-        # Отображаем список кластеров
-        show_info_instance._display_content(df, cluster_count)
+    if df is not None:
 
-    elif df is not None and implementation_choice == "Sunburst":
+        if implementation_choice == "Список кластеров":
+            # Отображаем список кластеров
+            show_info_instance._display_content(df, cluster_count)
+
+        elif implementation_choice == "Sunburst":
 
 
-        cluster_counts = df['cluster_id'].value_counts().to_dict()
+            cluster_counts = df['cluster_id'].value_counts().to_dict()
 
-        labels = []
-        values = []
-        for cluster_id, freq in cluster_counts.items():
-            labels.append(str(cluster_id))
-            values.append(freq)
+            labels = []
+            values = []
+            for cluster_id, freq in cluster_counts.items():
+                labels.append(str(cluster_id))
+                values.append(freq)
 
-        fig = go.Figure(data=[go.Pie(labels=labels, values=values, textinfo='label+percent',
-                                     insidetextorientation='radial'
-                                     )])
-        st.write(fig)
-        st.write(df['question'][0])
-    elif df is not None and implementation_choice == "Wordcloud":
-        words_inf = df['topic_name'].value_counts().to_dict()
+            fig = go.Figure(data=[go.Pie(labels=labels, values=values, textinfo='label+percent',
+                                         insidetextorientation='radial'
+                                         )])
+            st.write(fig)
+            st.write(df['question'][0])
+        elif implementation_choice == "Wordcloud":
+            words_inf = df['topic_name'].value_counts().to_dict()
 
-        words = list(words_inf.keys())
-        print(words)
-        text = ', '.join(words)
+            words = list(words_inf.keys())
+            print(words)
+            text = ', '.join(words)
 
-        # Create and generate a word cloud image:
-        wordcloud = WordCloud(relative_scaling=0.5).generate(text)
+            # Create and generate a word cloud image:
+            wordcloud = WordCloud(relative_scaling=0.5).generate(text)
 
-        # Display the generated image:
-        fig, ax = plt.subplots()
-        ax.imshow(wordcloud, interpolation='bilinear')
-        ax.axis("off")
-        st.pyplot(fig)
-    elif df is not None and implementation_choice == "Гистограмма":
-        x = []
-        y = []
-        colors = {'neutrals': 'lightyellow', 'positives': 'lightgreen', 'negatives': 'lightcoral'}
+            # Display the generated image:
+            fig, ax = plt.subplots()
+            ax.imshow(wordcloud, interpolation='bilinear')
+            ax.axis("off")
+            st.pyplot(fig)
+        elif implementation_choice == "Гистограмма":
+            x = []
+            y = []
+            colors = {'neutrals': 'lightyellow', 'positives': 'lightgreen', 'negatives': 'lightcoral'}
 
-        sent_counts = df['sentiment'].value_counts().to_dict()
-        print(sent_counts)
-        for sent, freq in sent_counts.items():
-            x.append(sent)
-            y.append(freq)
-        color_list = [colors[sent] for sent in x]
-        fig = go.Figure(data=[go.Bar(x=x, y=y, marker=dict(color=color_list))])
-        fig.update_layout(title="Частота значений 'sentiment'")
+            sent_counts = df['sentiment'].value_counts().to_dict()
+            print(sent_counts)
+            for sent, freq in sent_counts.items():
+                x.append(sent)
+                y.append(freq)
+            color_list = [colors[sent] for sent in x]
+            fig = go.Figure(data=[go.Bar(x=x, y=y, marker=dict(color=color_list))])
+            fig.update_layout(title="Частота значений 'sentiment'")
 
-        st.write(fig)
-        st.write(df['question'][0])
-
+            st.write(fig)
+            st.write(df['question'][0])
