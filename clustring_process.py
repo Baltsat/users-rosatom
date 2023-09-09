@@ -1,4 +1,6 @@
 import json
+
+import numpy as np
 import tweetnlp
 from sentence_transformers import SentenceTransformer
 
@@ -46,7 +48,7 @@ class ClusteringAndProcessing:
                 gt_idx = di.get(sentiment, 3)
                 gt[gt_idx] += 1
 
-                batch_answer['cluster'] = answer
+                batch_answer['cluster'] = answer # TODO: processed answer
                 batch_answer['sentiment_our'] = result
 
             data.append(batch)
@@ -76,8 +78,6 @@ class ClusteringAndProcessing:
         df = pd.DataFrame(columns=['question', 'answer', 'sentiment', 'j', 'cluster_id', 'topic_name'])
 
         prediction_label = [0, 0, 0, 0]  # neutral positive negative unknown
-        gt = [0, 0, 0, 0]  # neutral positive negative unknown
-        di = {"neutrals": 0, "positives": 1, "negatives": 2, "unknown": 3}
         sentiment_mapping = {
             'neutral': ('neutrals', 0),
             'positive': ('positives', 1),
@@ -85,7 +85,7 @@ class ClusteringAndProcessing:
         }
 
         new_row = None
-        embeds_pc2 = None
+        embedings = []
         for idx, batch_answer in enumerate(json_data['answers']):
             print(batch_answer)
             answer = batch_answer['answer']
@@ -96,20 +96,22 @@ class ClusteringAndProcessing:
                 prediction = {'label': 'negatives'}
             prediction_label_idx = sentiment_mapping.get(prediction['label'], ('unknown', 3))
             result, prediction_label[prediction_label_idx[1]] = prediction_label_idx[0], 1
-            embedings = self.emb_model.encode(batch_answer['answer'])
-
-            embeds_pc2 = get_pc(embedings, PCA_EMB)
+            embedings.append(np.asarray(self.emb_model.encode(answer)))
 
             new_row = {'question': json_data['question'],
-                       'answer': batch_answer['answer'],
+                       'answer': answer,
                        'sentiment': result,
                        'j': idx}
 
-        new_row['clusted_id'] = self._get_cluster_id(embeds_pc2, cluster_count)
+        embeds_pc2 = get_pc(embedings, PCA_EMB)
+
+        new_row['cluster_id'] = self._get_cluster_id(embeds_pc2, cluster_count)
         new_row['topic_name'] = self._get_topic_name()
         new_row_df = pd.DataFrame([new_row])
-        print(new_row_df)
-        return new_row_df
+        df = pd.concat([df, new_row_df], ignore_index=True)
+
+        print(df)
+        return df
 
 
 if __name__ == "__main__":
