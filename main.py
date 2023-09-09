@@ -33,22 +33,29 @@ with st.sidebar:
         min_value=1,  # Минимальное значение
         step=1,  # Шаг изменения (только целые числа)
     )
-    implementation_choice = st.selectbox("Выберите реализацию:", ["Список кластеров", "Sunburst", "Word карта"])
+    implementation_choice = st.selectbox("Выберите реализацию:", ["default", "Список кластеров", "Sunburst", "Word карта", "Гистограмма"])
+
 
 show_data = False
 
-# Обработка введенных данных или загруженного файла
-if user_input:
-    st.write("Вы ввели следующие данные:", user_input)
-    show_data = True  # Устанавливаем флаг для отображения данных
+if (implementation_choice == "default" and (not user_input and not uploaded_file)):
+    pass
+else:
+    if (implementation_choice == "default"):
+        st.write("Данные обработаны, переключите режим на боковой панели")
+    # Обработка введенных данных или загруженного файла
+    if user_input:
+        st.write("Вы ввели следующие данные:", user_input)
+        show_data = True  # Устанавливаем флаг для отображения данных
 
-if uploaded_file:
-    st.write("Вы загрузили файл JSON:", uploaded_file)
-    show_data = True  # Устанавливаем флаг для отображения данных
+    if uploaded_file:
+        #st.write("Вы загрузили файл JSON:", uploaded_file)
+        show_data = True  # Устанавливаем флаг для отображения данных=
 
-if show_data:
-    json_data = json
-    show_info_instance = ShowClasters()
+    json_data = None
+
+    if show_data:
+        show_info_instance = ShowClasters()
 
     if user_input:
         try:
@@ -57,26 +64,41 @@ if show_data:
             # Обработка ошибки, если user_input не является валидной JSON строкой
             pass
     elif uploaded_file:
-        try:
-            with open(uploaded_file, 'r') as file:
-                json_data = json.load(file)
-        except (json.JSONDecodeError, FileNotFoundError):
-            # Обработка ошибки, если файл не найден или не содержит валидный JSON
-            pass
+        # Получите байтовые данные из объекта UploadedFile
+        uploaded_file_bytes = uploaded_file.read()
 
-    clustering = ClusteringAndProcessing()
-    csv_data = clustering.get_processed_file_in_CSV(json_data, cluster_count)
-    # Здесь clustering - csv
-    df = csv_data
-    # try:
-    #     df = pd.read_csv(csv_data)
-    # except Exception as e:
-    #     st.write(f"Произошла ошибка при загрузке данных из CSV файла: {str(e)}")
+        # Преобразуйте байты в строку
+        uploaded_file_text = uploaded_file_bytes.decode('utf-8')
+
+        st.write("Вы загрузили файл JSON:", uploaded_file.name)
+        # st.code(uploaded_file_text, language='json')  # Отобразить содержимое файла в блоке кода
+        try:
+            # Преобразуйте строку JSON в словарь
+            json_data = json.loads(uploaded_file_text)
+
+            # В данном месте json_data является словарем и может быть индексирован
+            # Например, json_data['answers']
+        except json.JSONDecodeError:
+            st.write("Произошла ошибка при разборе JSON данных из файла.")
+
+        show_data = True  # Устанавливаем флаг для отображения данных
+
+    @st.cache_data
+    def clusterRelese():
+        clustering = ClusteringAndProcessing()
+        csv_data = clustering.get_processed_file_in_CSV(json_data, cluster_count)
+        # Здесь clustering - csv
+        df = csv_data
+        return df
+
+    if (json_data):
+        df = clusterRelese()
 
     if implementation_choice == "Список кластеров":
         # Отображаем список кластеров
         show_info_instance._display_content(df, cluster_count)
-    if implementation_choice == "Sunburst":
+
+    elif implementation_choice == "Sunburst":
         sunburst_data = {
             'labels': [],
             'parents': [],
@@ -84,14 +106,14 @@ if show_data:
         }
 
         # Добавляем корневой элемент (вопрос)
-        sunburst_data['labels'].append(df['question'][0])
+        sunburst_data['labels'].append(df['question'][0][:10] + "...")
         sunburst_data['parents'].append("")  # Пустая строка для корневого элемента
-        sunburst_data['values'].append(1)  # Можно использовать любые значения
+        sunburst_data['values'].append()  # Можно использовать любые значения
 
         # Добавляем cluster_id как дочерние элементы
         for cluster_id in df['cluster_id']:
             sunburst_data['labels'].append(cluster_id)
-            sunburst_data['parents'].append(df['question'][0])  # Вопрос как родительский элемент
+            sunburst_data['parents'].append(df['question'][0][:10] + "...")  # Вопрос как родительский элемент
             sunburst_data['values'].append(1)  # Можно использовать любые значения
 
         # Создаем sunburst диаграмму
@@ -106,7 +128,9 @@ if show_data:
 
         # Отображаем диаграмму
         st.write(fig)
-    if implementation_choice == "Word карта":
+    elif implementation_choice == "Word карта":
         # Ваш код для отображения Word карты
+        pass
+    elif implementation_choice == "Гистограмма":
         pass
 

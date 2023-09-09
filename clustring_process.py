@@ -122,9 +122,9 @@ class ClusteringAndProcessing:
         return df
 
 
-if __name__ == "__main__":
-    mc = ClusteringAndProcessing()
-    with open("./data/all_649.json", encoding='utf-8-sig') as json_file:
-        loaded = json.load(json_file)
-        df = mc.get_processed_file_in_CSV(loaded)
-        df.to_csv("./data/result_649.csv",index=False)
+# if __name__ == "__main__":
+#     mc = ClusteringAndProcessing()
+#     with open("./data/all_649.json", encoding='utf-8-sig') as json_file:
+#         loaded = json.load(json_file)
+#         df = mc.get_processed_file_in_CSV(loaded)
+#         df.to_csv("./data/result_649.csv",index=False)
