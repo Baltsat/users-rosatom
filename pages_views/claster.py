@@ -1,13 +1,15 @@
 import streamlit as st
 import pandas as pd
 
-class ShowClasters():
+
+class ShowClasters:
+
     def _display_content(self, df, cluster_count: int):
         # Чтение данных из CSV строки
         # df = pd.read_csv(pd.compat.StringIO(csv_data))
         i = 0
 
-        grouped = df.groupby('id_cluster')
+        grouped = df.groupby('cluster')
 
         for cluster_id, group_data in grouped:
             if (i < cluster_count):

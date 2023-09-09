@@ -1,6 +1,8 @@
 import streamlit as st
 import plotly.express as px
 import pandas as pd
+#from bertopic import BERTopic
+#from sklearn.datasets import fetch_20newsgroups
 
 from clustring_process import ClusteringAndProcessing
 from pages_views.claster import ShowClasters
@@ -29,6 +31,7 @@ with st.sidebar:
         min_value=1,  # Минимальное значение
         step=1,  # Шаг изменения (только целые числа)
     )
+    implementation_choice = st.selectbox("Выберите реализацию:", ["Список кластеров", "Sunburst ", "Word карта"])
 
 show_data = False
 
@@ -41,42 +44,40 @@ if uploaded_file:
     st.write("Вы загрузили файл JSON:", uploaded_file)
     show_data = True  # Устанавливаем флаг для отображения данных
 
-# Отображаем элементы только если флаг show_data установлен в True
 if show_data:
     show_info_instance = ShowClasters()
 
     if user_input:
-        show_info_instance.set_user_input(user_input)
         try:
             json_data = json.loads(user_input)
         except json.JSONDecodeError:
             # Обработка ошибки, если user_input не является валидной JSON строкой
             pass
     elif uploaded_file:
-        show_info_instance.set_uploaded_file(uploaded_file)
         try:
             with open(uploaded_file, 'r') as file:
                 json_data = json.load(file)
         except (json.JSONDecodeError, FileNotFoundError):
             # Обработка ошибки, если файл не найден или не содержит валидный JSON
             pass
+
     clustering = ClusteringAndProcessing()
-    csv_data = clustering.getProcessedFileInCSV(json_data, cluster_count)
-    # пусть мы сейчас выплюнули tema.csv
-    df = pd.read_csv(pd.compat.StringIO(csv_data))
-    show_info_instance._display_content(df, cluster_count)
+    #csv_data = clustering.getProcessedFileInCSV(json_data, cluster_count)
+    # Здесь clustering - csv
+    try:
+        df = pd.read_csv('tema.csv')
+    except Exception as e:
+        st.write(f"Произошла ошибка при загрузке данных из CSV файла: {str(e)}")
 
+    if implementation_choice == "Список кластеров":
+        # Отображаем список кластеров
+        show_info_instance._display_content(df, cluster_count)
+    elif implementation_choice == "Sunburst":
+        # Создайте фигуру Plotly Express для диаграммы
+        fig = px.sunburst(df, path=['cluster', 'answer'])
+        # Отобразите диаграмму в Streamlit
+        st.write(fig)
+    elif implementation_choice == "Word карта":
+        # Ваш код для отображения Word карты
+        pass
 
-if show_data:
-    data = dict(
-        character=["Eve", "Cain", "Seth", "Enos", "Noam", "Abel", "Awan", "Enoch", "Azura"],
-        parent=["", "Eve", "Eve", "Seth", "Seth", "Eve", "Eve", "Awan", "Eve"],
-        value=[10, 14, 12, 10, 2, 6, 6, 4, 4])
-
-    fig = px.sunburst(
-        data,
-        names='character',
-        parents='parent',
-        values='value',
-    )
-    st.write(fig)

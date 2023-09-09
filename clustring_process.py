@@ -1,6 +1,8 @@
 import json
 
-class ClusteringAndProcessing():
+
+class ClusteringAndProcessing:
+
     def getProcessedFileInCSV(self, json_data, cluster_count: int):
         pass
 
