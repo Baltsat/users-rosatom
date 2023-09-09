@@ -67,7 +67,7 @@ if show_data:
     clustering = ClusteringAndProcessing()
     csv_data = clustering.get_processed_file_in_CSV(json_data, cluster_count)
     # Здесь clustering - csv
-    df = pd.read_csv(csv_data)
+    df = csv_data
     # try:
     #     df = pd.read_csv(csv_data)
     # except Exception as e:
