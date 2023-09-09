@@ -1,46 +1,23 @@
 import streamlit as st
+import pandas as pd
 
 class ShowClasters():
-    def __init__(self):
-        self.user_input = None
-        self.uploaded_file = None
-        self.cluster_count = None
+    def _display_content(self, df, cluster_count: int):
+        # Чтение данных из CSV строки
+        # df = pd.read_csv(pd.compat.StringIO(csv_data))
+        i = 0
 
-    def set_user_input(self, user_input):
-        self.user_input = user_input
+        grouped = df.groupby('id_cluster')
 
-    def set_uploaded_file(self, uploaded_file):
-        self.uploaded_file = uploaded_file
+        for cluster_id, group_data in grouped:
+            if (i < cluster_count):
+                with st.expander(f'Кластер {cluster_id}'):
+                    for index, row in group_data.iterrows():
+                        answer = row['answer']
+                        st.write(f'Answer: {answer}')
+                        # Дополнительные данные о кластере, если они есть, могут быть отображены здесь
+                i += 1
 
-    def set_cluster_count(self, cluster_count):
-        self.cluster_count = cluster_count
-
-    def _display_content(self):
-        # Список элементов
-        elements = ["Элемент 1", "Элемент 2", "Элемент 3", "Элемент 4", "Элемент 5", "Элемент 6", "Элемент 7", "Элемент 8", "Элемент 9", "Элемент 10"]
-
-        # Определите количество элементов, которые будут отображаться по умолчанию
-        default_display_count = 5
-
-
-
-        # Отображение списка элементов
-        for i in range(default_display_count):
-            with st.expander(elements[i]):
-                # Весь контент, который будет отображаться внутри элемента, должен быть в этом блоке
-                st.write("Здесь находится информация о элементе.")
-
-
-        show_all_elements = st.checkbox("Показать остальные элементы")
-
-        # Если выбрано больше элементов, чем отображается по умолчанию
-        if show_all_elements:
-            remaining_elements = elements[default_display_count:]
-
-            for element in remaining_elements:
-                with st.expander(element):
-                    # Весь контент, который будет отображаться внутри элемента, должен быть в этом блоке
-                    st.write("Здесь находится информация о элементе.")
 
 
 

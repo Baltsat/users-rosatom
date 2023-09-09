@@ -1,7 +1,12 @@
 import streamlit as st
 import plotly.express as px
+import pandas as pd
 
+from clustring_process import ClusteringAndProcessing
 from pages_views.claster import ShowClasters
+
+import json
+import csv
 
 st.markdown("<h1 style='text-align: center; background-color: #000045; color: #ece5f6'>Users Team</h1>", unsafe_allow_html=True)
 st.markdown("<h4 style='text-align: center; background-color: #000045; color: #ece5f6'>Улучшение представлений результатов в сервисе \"Мой голос\"</h4>", unsafe_allow_html=True)
@@ -39,12 +44,27 @@ if uploaded_file:
 # Отображаем элементы только если флаг show_data установлен в True
 if show_data:
     show_info_instance = ShowClasters()
+
     if user_input:
         show_info_instance.set_user_input(user_input)
+        try:
+            json_data = json.loads(user_input)
+        except json.JSONDecodeError:
+            # Обработка ошибки, если user_input не является валидной JSON строкой
+            pass
     elif uploaded_file:
         show_info_instance.set_uploaded_file(uploaded_file)
-    #getDataJson -> .csv
-    show_info_instance._display_content()
+        try:
+            with open(uploaded_file, 'r') as file:
+                json_data = json.load(file)
+        except (json.JSONDecodeError, FileNotFoundError):
+            # Обработка ошибки, если файл не найден или не содержит валидный JSON
+            pass
+    clustering = ClusteringAndProcessing()
+    csv_data = clustering.getProcessedFileInCSV(json_data, cluster_count)
+    # пусть мы сейчас выплюнули tema.csv
+    df = pd.read_csv(pd.compat.StringIO(csv_data))
+    show_info_instance._display_content(df, cluster_count)
 
 
 if show_data:
