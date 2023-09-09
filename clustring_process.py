@@ -66,7 +66,7 @@ class ClusteringAndProcessing:
         # generate_chart(df_clust.iloc[:sample], '0', '1', lbl='on', color='cluster', title='Clustering with 2 Clusters')
 
     def _get_topic_name(self):
-        return "Topic_name"
+        return ["Topic_name"]
 
     def get_processed_file_in_CSV(self, json_data, cluster_count: int = 5):
         """
@@ -86,6 +86,9 @@ class ClusteringAndProcessing:
 
         new_row = None
         embedings = []
+        answers = []
+        js = []
+        sentiments = []
         for idx, batch_answer in enumerate(json_data['answers']):
             print(batch_answer)
             answer = batch_answer['answer']
@@ -98,19 +101,24 @@ class ClusteringAndProcessing:
             result, prediction_label[prediction_label_idx[1]] = prediction_label_idx[0], 1
             embedings.append(np.asarray(self.emb_model.encode(answer)))
 
-            new_row = {'question': json_data['question'],
-                       'answer': answer,
-                       'sentiment': result,
-                       'j': idx}
+            answers.append(answer)
+            sentiments.append(result)
+            js.append(idx)
 
         embeds_pc2 = get_pc(embedings, PCA_EMB)
+        clusters = self._get_cluster_id(embeds_pc2, cluster_count)
+        topics = self._get_topic_name()
+        for i in range(len(answers)):
+            new_row = {'question': json_data['question'],
+                       'answer': answers[i],
+                       'sentiment': sentiments[i],
+                       'j': js[i],
+                       'cluster_id': clusters[i],
+                       'topic_name': topics[0] # TODO: fix topics clustering to assign name
+                       }
+            new_row_df = pd.DataFrame([new_row])
+            df = pd.concat([df, new_row_df], ignore_index=True)
 
-        new_row['cluster_id'] = self._get_cluster_id(embeds_pc2, cluster_count)
-        new_row['topic_name'] = self._get_topic_name()
-        new_row_df = pd.DataFrame([new_row])
-        df = pd.concat([df, new_row_df], ignore_index=True)
-
-        print(df)
         return df
 
 
@@ -118,4 +126,5 @@ if __name__ == "__main__":
     mc = ClusteringAndProcessing()
     with open("./data/all_324.json", encoding='utf-8-sig') as json_file:
         loaded = json.load(json_file)
-        mc.get_processed_file_in_CSV(loaded)
+        df = mc.get_processed_file_in_CSV(loaded)
+        df.to_csv("./data/result.csv",index=False)
