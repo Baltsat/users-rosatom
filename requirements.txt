@@ -1,0 +1,9 @@
+numpy==1.21.2
+pandas
+tweetnlp
+scikit-learn
+altair
+vegafusion[embed]>=1.4.0
+sentence_transformers
+streamlit
+plotly.express

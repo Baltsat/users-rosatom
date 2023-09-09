@@ -9,7 +9,7 @@ class ShowClasters:
         # df = pd.read_csv(pd.compat.StringIO(csv_data))
         i = 0
 
-        grouped = df.groupby('cluster')
+        grouped = df.groupby('cluster_id')
 
         for cluster_id, group_data in grouped:
             if (i < cluster_count):

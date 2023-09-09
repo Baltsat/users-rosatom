@@ -1,0 +1,58 @@
+question,answer,sentiment,j,cluster_id,topic_name
+Как началось ваше утро?,утро началось отлично,positives,0,2,Topic_name
+Как началось ваше утро?,"с осознания, что выходных нет третью неделю(",negatives,1,2,Topic_name
+Как началось ваше утро?,классно,positives,2,3,Topic_name
+Как началось ваше утро?,удаленка,neutrals,3,1,Topic_name
+Как началось ваше утро?,супер,positives,4,3,Topic_name
+Как началось ваше утро?,отлчино,neutrals,5,4,Topic_name
+Как началось ваше утро?,идите все в лес!,negatives,6,1,Topic_name
+Как началось ваше утро?,супер,positives,7,3,Topic_name
+Как началось ваше утро?,город,neutrals,8,4,Topic_name
+Как началось ваше утро?,с разговора с алисой о смысле жизни,neutrals,9,2,Topic_name
+Как началось ваше утро?,продуктивно,positives,10,4,Topic_name
+Как началось ваше утро?,россия,neutrals,11,4,Topic_name
+Как началось ваше утро?,"сегодня понедельник, утро начинается с забот",neutrals,12,2,Topic_name
+Как началось ваше утро?,шикарно,positives,13,4,Topic_name
+Как началось ваше утро?,всё супер,positives,14,3,Topic_name
+Как началось ваше утро?,турник,neutrals,15,4,Topic_name
+Как началось ваше утро?,класно,positives,16,3,Topic_name
+Как началось ваше утро?,великолепно,positives,17,0,Topic_name
+Как началось ваше утро?,замечательно,positives,18,3,Topic_name
+Как началось ваше утро?,работа,neutrals,19,4,Topic_name
+Как началось ваше утро?,"сгори в аду, ии",negatives,20,1,Topic_name
+Как началось ваше утро?,завтрак,neutrals,21,2,Topic_name
+Как началось ваше утро?,"с сообщения коллеги о том, что появилась неотложная задача.",neutrals,22,2,Topic_name
+Как началось ваше утро?,гуд,neutrals,23,4,Topic_name
+Как началось ваше утро?,душ,neutrals,24,4,Topic_name
+Как началось ваше утро?,зарядка,neutrals,25,4,Topic_name
+Как началось ваше утро?,niou,neutrals,26,4,Topic_name
+Как началось ваше утро?,кофе с молоком,neutrals,27,2,Topic_name
+Как началось ваше утро?,зачем вам это знать,negatives,28,1,Topic_name
+Как началось ваше утро?,пробежка,neutrals,29,4,Topic_name
+Как началось ваше утро?,123,neutrals,30,4,Topic_name
+Как началось ваше утро?,прекрасно,positives,31,3,Topic_name
+Как началось ваше утро?,дружелюбно,positives,32,4,Topic_name
+Как началось ваше утро?,хорошо,positives,33,3,Topic_name
+Как началось ваше утро?,"что за вопрос, конечно же прекрасно",positives,34,1,Topic_name
+Как началось ваше утро?,на пятерочку,neutrals,35,1,Topic_name
+Как началось ваше утро?,москва,neutrals,36,4,Topic_name
+Как началось ваше утро?,отлично,positives,37,3,Topic_name
+Как началось ваше утро?,расслабляющая ванна после пробежки,positives,38,2,Topic_name
+Как началось ваше утро?,это личное,neutrals,39,1,Topic_name
+Как началось ваше утро?,супер,positives,40,3,Topic_name
+Как началось ваше утро?,задачи,neutrals,41,4,Topic_name
+Как началось ваше утро?,харашо,positives,42,3,Topic_name
+Как началось ваше утро?,интерес,neutrals,43,4,Topic_name
+Как началось ваше утро?,просто великолепно,positives,44,0,Topic_name
+Как началось ваше утро?,авто,neutrals,45,4,Topic_name
+Как началось ваше утро?,отлично,positives,46,3,Topic_name
+Как началось ваше утро?,its amazing,positives,47,0,Topic_name
+Как началось ваше утро?,отвратительно,negatives,48,0,Topic_name
+Как началось ваше утро?,бодро,positives,49,4,Topic_name
+Как началось ваше утро?,приемлемо,positives,50,4,Topic_name
+Как началось ваше утро?,проверка,neutrals,51,4,Topic_name
+Как началось ваше утро?,скайп,neutrals,52,4,Topic_name
+Как началось ваше утро?,сонно,negatives,53,4,Topic_name
+Как началось ваше утро?,не хочу отвечать,negatives,54,1,Topic_name
+Как началось ваше утро?,снова на работу,neutrals,55,1,Topic_name
+Как началось ваше утро?,норм,neutrals,56,4,Topic_name

@@ -1,10 +1,12 @@
 import streamlit as st
 import plotly.express as px
 import pandas as pd
+import plotly.graph_objects as go
+
 #from bertopic import BERTopic
 #from sklearn.datasets import fetch_20newsgroups
 
-from clustring_process import ClusteringAndProcessing
+#from clustring_process import ClusteringAndProcessing
 from pages_views.claster import ShowClasters
 
 import json
@@ -61,11 +63,11 @@ if show_data:
             # Обработка ошибки, если файл не найден или не содержит валидный JSON
             pass
 
-    clustering = ClusteringAndProcessing()
+    #clustering = ClusteringAndProcessing()
     #csv_data = clustering.getProcessedFileInCSV(json_data, cluster_count)
     # Здесь clustering - csv
     try:
-        df = pd.read_csv('tema.csv')
+        df = pd.read_csv('result.csv')
     except Exception as e:
         st.write(f"Произошла ошибка при загрузке данных из CSV файла: {str(e)}")
 
@@ -73,9 +75,25 @@ if show_data:
         # Отображаем список кластеров
         show_info_instance._display_content(df, cluster_count)
     elif implementation_choice == "Sunburst":
-        # Создайте фигуру Plotly Express для диаграммы
-        fig = px.sunburst(df, path=['cluster', 'answer'])
-        # Отобразите диаграмму в Streamlit
+        st.write('sadasd!!!!!!!!')
+        sunburst_data = {
+            'labels': df['question'],
+            'parents': df['topic_name'],
+            'values': [1] * len(df),  # Можно использовать любые значения, так как они не влияют на структуру
+        }
+        st.write(df['questoion'])
+
+        # Создаем sunburst диаграмму
+        fig = go.Figure(go.Sunburst(
+            labels=sunburst_data['labels'],
+            parents=sunburst_data['parents'],
+            values=sunburst_data['values'],
+        ))
+
+        # Настройка макета
+        fig.update_layout(margin=dict(t=0, l=0, r=0, b=0))
+
+        # Отображаем диаграмму
         st.write(fig)
     elif implementation_choice == "Word карта":
         # Ваш код для отображения Word карты
