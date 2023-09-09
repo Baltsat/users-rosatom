@@ -5,13 +5,105 @@ import tweetnlp
 from sentence_transformers import SentenceTransformer
 
 import pandas as pd
+from transformers import pipeline
+
 from utils import get_pc
 from sklearn.cluster import KMeans
 import pickle
 import json
 import os
 import subprocess
+from umap import UMAP
+from sklearn.feature_extraction.text import CountVectorizer
+from bertopic.representation import KeyBERTInspired
+from hdbscan import HDBSCAN
+from bertopic import BERTopic
 
+
+class ModelCluster:
+    def __init__(self):
+        representation_model = KeyBERTInspired()
+        umap_model = UMAP(n_neighbors=4, n_components=3, min_dist=0.0, metric='chebyshev',
+                          low_memory=True)  # chebyshev manhattan
+        embedding_model = pipeline("feature-extraction", model="shibing624/text2vec-base-multilingual")
+        hdbscan_model = HDBSCAN(min_cluster_size=2, min_samples=1, metric='euclidean', prediction_data=True)
+        vectorizer_model = CountVectorizer(min_df=1, ngram_range=(1, 3))
+
+        self.topic_model = BERTopic(
+            # Pipeline models
+            embedding_model=embedding_model,
+            umap_model=umap_model,
+            hdbscan_model=hdbscan_model,
+            vectorizer_model=vectorizer_model,
+            representation_model=representation_model,
+
+            # Hyperparameters
+            # top_n_words=5,
+            # min_topic_size=1,
+            low_memory=True,
+            verbose=True
+        )
+
+    def prediction_cluster(self, question: dict):
+        '''
+        Предсказывает номера и имена кластеров для 1 вопроса в формате json.load()
+        Args:
+            question: dict
+        Return
+            question: dict
+        '''
+        question['answers'] = self.merge_duplicate_answers(question)
+        data = [question['question']+" "+answer['answer'] for answer in question['answers']]
+        topics, probs = self.topic_model.fit_transform(data)
+        # top_prob = zip(topics, probs)
+        # res = []
+        # for i, v in top_prob:
+        #     if v >= 0.5:
+        #         res.append(i)
+        # print()
+        # topics = res
+        represent = self.topic_model.get_representative_docs()
+        topic_dict = {key: value[0] for key, value in represent.items()}
+
+        answers = question['answers']
+        proc_answers = []
+
+        for answer, cluster_id, prob in zip(answers, topics, probs):
+            # if prob < 0.5:
+            #     continue
+            answer['cluster_id'] = cluster_id
+            answer['topic_name'] = topic_dict.get(cluster_id) + " " + str(prob)
+
+            proc_answers.append(answer)
+
+        question['answers'] = proc_answers
+
+
+        return question
+
+    def merge_duplicate_answers(self, json_data):
+        '''
+        Объединяет дублирующиеся ответы и суммирует их количество.
+        Args:
+            json_data type: dict[list[dict]]: Cловарь с ключом 'asnwers' и вложенными в нём списком словарей с ключами: 'answer' и 'count'.
+
+        Return:
+            list: Новый список словарей с уникальными записями 'answer' и их суммированными значениями 'count'.
+        '''
+        unique_answers = {}
+
+        for item in json_data['answers']:
+            answer = item['answer']
+            count = item['count']
+
+            if answer in unique_answers:
+                unique_answers[answer] += count
+            else:
+                unique_answers[answer] = count
+
+        answers = [{'answer': answer, 'count': count} for answer, count in unique_answers.items()]
+
+        return answers
 
 class ClusteringAndProcessing:
     def __init__(self):
@@ -65,8 +157,9 @@ class ClusteringAndProcessing:
         # df_clust.columns = df_clust.columns.astype(str)
         # generate_chart(df_clust.iloc[:sample], '0', '1', lbl='on', color='cluster', title='Clustering with 2 Clusters')
 
-    def _get_topic_name(self):
-        return ["Topic_name"]
+    def _get_topic_name(self, json_data):
+        print(f"!!!!!!!!!!!!!!!!!! {json_data}")
+        return ModelCluster().prediction_cluster(json_data)#["Topic_name"]
 
     def get_processed_file_in_CSV(self, json_data, cluster_count: int = 5):
         """
@@ -89,6 +182,7 @@ class ClusteringAndProcessing:
         answers = []
         js = []
         sentiments = []
+        print(json_data)
         for idx, batch_answer in enumerate(json_data['answers']):
             print(batch_answer)
             answer = batch_answer['answer']
@@ -107,24 +201,25 @@ class ClusteringAndProcessing:
 
         embeds_pc2 = get_pc(embedings, PCA_EMB)
         clusters = self._get_cluster_id(embeds_pc2, cluster_count)
-        topics = self._get_topic_name()
+        topics = self._get_topic_name(json_data)
+        print(f"&&&&&&&&&&&&&&&&& {topics}")
+        print('\n\n\n\n')
         for i in range(len(answers)):
+            topic_name = None
+            cluster_id = -1
+            for ans in topics['answers']:
+                if ans['answer'] == answers[i]:
+                    topic_name = ans['topic_name']
+                    cluster_id = ans['cluster_id']
             new_row = {'question': json_data['question'],
                        'answer': answers[i],
                        'sentiment': sentiments[i],
                        'j': js[i],
-                       'cluster_id': clusters[i],
-                       'topic_name': topics[0] # TODO: fix topics clustering to assign name
+                       'cluster_id': clusters[i], # cluster_id
+                       'topic_name': topic_name # topics['answers'] == answers[i] # TODO: fix topics clustering to assign name
                        }
+            print(f"^^^^^^^^^^^^^^ {new_row}")
             new_row_df = pd.DataFrame([new_row])
             df = pd.concat([df, new_row_df], ignore_index=True)
 
         return df
-
-
-# if __name__ == "__main__":
-#     mc = ClusteringAndProcessing()
-#     with open("./data/all_649.json", encoding='utf-8-sig') as json_file:
-#         loaded = json.load(json_file)
-#         df = mc.get_processed_file_in_CSV(loaded)
-#         df.to_csv("./data/result_649.csv",index=False)
