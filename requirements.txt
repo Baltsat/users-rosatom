@@ -1,0 +1,7 @@
+numpy
+pandas
+tweetnlp
+scikit-learn
+altair
+vegafusion[embed]>=1.4.0
+sentence_transformers
