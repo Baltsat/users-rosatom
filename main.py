@@ -4,6 +4,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from matplotlib import pyplot as plt
 from wordcloud import WordCloud
+from PIL import Image
 
 #from bertopic import BERTopic
 #from sklearn.datasets import fetch_20newsgroups
@@ -13,6 +14,8 @@ from pages_views.claster import ShowClasters
 
 import json
 import csv
+
+from pages_views.first_page import MainPage
 
 st.markdown("<h1 style='text-align: center; background-color: #000045; color: #ece5f6'>Users Team</h1>", unsafe_allow_html=True)
 st.markdown("<h4 style='text-align: center; background-color: #000045; color: #ece5f6'>Улучшение представлений результатов в сервисе \"Мой голос\"</h4>", unsafe_allow_html=True)
@@ -41,8 +44,10 @@ with st.sidebar:
 show_data = False
 
 if (implementation_choice == "default" and (not user_input and not uploaded_file)):
-    pass
+    first_page_render = MainPage()
+    first_page_render.visualizeMainPage()
 else:
+    df = None
     if (implementation_choice == "default"):
         st.write("Данные обработаны, переключите режим на боковой панели")
     # Обработка введенных данных или загруженного файла
@@ -56,6 +61,8 @@ else:
 
     json_data = None
 
+
+    show_info_instance = None
     if show_data:
         show_info_instance = ShowClasters()
 
@@ -86,7 +93,7 @@ else:
         show_data = True  # Устанавливаем флаг для отображения данных
 
     @st.cache_data
-    def clusterRelese():
+    def clusterRelese(json_data):
         clustering = ClusteringAndProcessing()
         csv_data = clustering.get_processed_file_in_CSV(json_data, cluster_count)
         # Здесь clustering - csv
@@ -94,13 +101,13 @@ else:
         return df
 
     if (json_data):
-        df = clusterRelese()
+        df = clusterRelese(json_data)
 
     if implementation_choice == "Список кластеров":
         # Отображаем список кластеров
         show_info_instance._display_content(df, cluster_count)
 
-    elif implementation_choice == "Sunburst":
+    elif df is not None and implementation_choice == "Sunburst":
 
 
         cluster_counts = df['cluster_id'].value_counts().to_dict()
@@ -116,18 +123,22 @@ else:
                                      )])
         st.write(fig)
         st.write(df['question'][0])
-    elif implementation_choice == "Wordcloud":
-        text = 'Fun, fun, awesome, awesome, tubular, astounding, superb, great, amazing, amazing, amazing, amazing'
+    elif df is not None and implementation_choice == "Wordcloud":
+        words_inf = df['topic_name'].value_counts().to_dict()
+
+        words = list(words_inf.keys())
+        print(words)
+        text = ', '.join(words)
 
         # Create and generate a word cloud image:
-        wordcloud = WordCloud().generate(text)
+        wordcloud = WordCloud(relative_scaling=0.5).generate(text)
 
         # Display the generated image:
-        plt.imshow(wordcloud, interpolation='bilinear')
-        plt.axis("off")
-        plt.show()
-        st.pyplot()
-    elif implementation_choice == "Гистограмма":
+        fig, ax = plt.subplots()
+        ax.imshow(wordcloud, interpolation='bilinear')
+        ax.axis("off")
+        st.pyplot(fig)
+    elif df is not None and implementation_choice == "Гистограмма":
         x = []
         y = []
         colors = {'neutrals': 'lightyellow', 'positives': 'lightgreen', 'negatives': 'lightcoral'}
