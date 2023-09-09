@@ -1,12 +1,27 @@
 import streamlit as st
 
-class ShowNClaterAndMoreInfo():
+class ShowClasters():
+    def __init__(self):
+        self.user_input = None
+        self.uploaded_file = None
+        self.cluster_count = None
+
+    def set_user_input(self, user_input):
+        self.user_input = user_input
+
+    def set_uploaded_file(self, uploaded_file):
+        self.uploaded_file = uploaded_file
+
+    def set_cluster_count(self, cluster_count):
+        self.cluster_count = cluster_count
+
     def _display_content(self):
         # Список элементов
         elements = ["Элемент 1", "Элемент 2", "Элемент 3", "Элемент 4", "Элемент 5", "Элемент 6", "Элемент 7", "Элемент 8", "Элемент 9", "Элемент 10"]
 
         # Определите количество элементов, которые будут отображаться по умолчанию
         default_display_count = 5
+
 
 
         # Отображение списка элементов
