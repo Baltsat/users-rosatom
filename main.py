@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 #from bertopic import BERTopic
 #from sklearn.datasets import fetch_20newsgroups
 
-#from clustring_process import ClusteringAndProcessing
+from clustring_process import ClusteringAndProcessing
 from pages_views.claster import ShowClasters
 
 import json
@@ -33,7 +33,7 @@ with st.sidebar:
         min_value=1,  # Минимальное значение
         step=1,  # Шаг изменения (только целые числа)
     )
-    implementation_choice = st.selectbox("Выберите реализацию:", ["Список кластеров", "Sunburst ", "Word карта"])
+    implementation_choice = st.selectbox("Выберите реализацию:", ["Список кластеров", "Sunburst", "Word карта"])
 
 show_data = False
 
@@ -47,6 +47,7 @@ if uploaded_file:
     show_data = True  # Устанавливаем флаг для отображения данных
 
 if show_data:
+    json_data = json
     show_info_instance = ShowClasters()
 
     if user_input:
@@ -63,25 +64,35 @@ if show_data:
             # Обработка ошибки, если файл не найден или не содержит валидный JSON
             pass
 
-    #clustering = ClusteringAndProcessing()
-    #csv_data = clustering.getProcessedFileInCSV(json_data, cluster_count)
+    clustering = ClusteringAndProcessing()
+    csv_data = clustering.get_processed_file_in_CSV(json_data, cluster_count)
     # Здесь clustering - csv
-    try:
-        df = pd.read_csv('result.csv')
-    except Exception as e:
-        st.write(f"Произошла ошибка при загрузке данных из CSV файла: {str(e)}")
+    df = pd.read_csv(csv_data)
+    # try:
+    #     df = pd.read_csv(csv_data)
+    # except Exception as e:
+    #     st.write(f"Произошла ошибка при загрузке данных из CSV файла: {str(e)}")
 
     if implementation_choice == "Список кластеров":
         # Отображаем список кластеров
         show_info_instance._display_content(df, cluster_count)
-    elif implementation_choice == "Sunburst":
-        st.write('sadasd!!!!!!!!')
+    if implementation_choice == "Sunburst":
         sunburst_data = {
-            'labels': df['question'],
-            'parents': df['topic_name'],
-            'values': [1] * len(df),  # Можно использовать любые значения, так как они не влияют на структуру
+            'labels': [],
+            'parents': [],
+            'values': [],
         }
-        st.write(df['questoion'])
+
+        # Добавляем корневой элемент (вопрос)
+        sunburst_data['labels'].append(df['question'][0])
+        sunburst_data['parents'].append("")  # Пустая строка для корневого элемента
+        sunburst_data['values'].append(1)  # Можно использовать любые значения
+
+        # Добавляем cluster_id как дочерние элементы
+        for cluster_id in df['cluster_id']:
+            sunburst_data['labels'].append(cluster_id)
+            sunburst_data['parents'].append(df['question'][0])  # Вопрос как родительский элемент
+            sunburst_data['values'].append(1)  # Можно использовать любые значения
 
         # Создаем sunburst диаграмму
         fig = go.Figure(go.Sunburst(
@@ -95,7 +106,7 @@ if show_data:
 
         # Отображаем диаграмму
         st.write(fig)
-    elif implementation_choice == "Word карта":
+    if implementation_choice == "Word карта":
         # Ваш код для отображения Word карты
         pass
 
