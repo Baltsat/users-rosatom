@@ -2,6 +2,8 @@ import streamlit as st
 import plotly.express as px
 import pandas as pd
 import plotly.graph_objects as go
+from matplotlib import pyplot as plt
+from wordcloud import WordCloud
 
 #from bertopic import BERTopic
 #from sklearn.datasets import fetch_20newsgroups
@@ -18,7 +20,7 @@ st.markdown("<h4 style='text-align: center; background-color: #000045; color: #e
 # Создаем боковую панель
 with st.sidebar:
     st.header("Ввод данных")
-
+    i = 1
     # Вариант 1: Ввод данных вручную
     user_input = st.text_area("Введите JSON данные:")
 
@@ -33,7 +35,7 @@ with st.sidebar:
         min_value=1,  # Минимальное значение
         step=1,  # Шаг изменения (только целые числа)
     )
-    implementation_choice = st.selectbox("Выберите реализацию:", ["default", "Список кластеров", "Sunburst", "Word карта", "Гистограмма"])
+    implementation_choice = st.selectbox("Выберите реализацию:", ["default", "Список кластеров", "Sunburst", "Wordcloud", "Гистограмма"])
 
 
 show_data = False
@@ -45,7 +47,7 @@ else:
         st.write("Данные обработаны, переключите режим на боковой панели")
     # Обработка введенных данных или загруженного файла
     if user_input:
-        st.write("Вы ввели следующие данные:", user_input)
+        #st.write("Вы ввели следующие данные:", user_input)
         show_data = True  # Устанавливаем флаг для отображения данных
 
     if uploaded_file:
@@ -99,38 +101,46 @@ else:
         show_info_instance._display_content(df, cluster_count)
 
     elif implementation_choice == "Sunburst":
-        sunburst_data = {
-            'labels': [],
-            'parents': [],
-            'values': [],
-        }
 
-        # Добавляем корневой элемент (вопрос)
-        sunburst_data['labels'].append(df['question'][0][:10] + "...")
-        sunburst_data['parents'].append("")  # Пустая строка для корневого элемента
-        sunburst_data['values'].append()  # Можно использовать любые значения
 
-        # Добавляем cluster_id как дочерние элементы
-        for cluster_id in df['cluster_id']:
-            sunburst_data['labels'].append(cluster_id)
-            sunburst_data['parents'].append(df['question'][0][:10] + "...")  # Вопрос как родительский элемент
-            sunburst_data['values'].append(1)  # Можно использовать любые значения
+        cluster_counts = df['cluster_id'].value_counts().to_dict()
 
-        # Создаем sunburst диаграмму
-        fig = go.Figure(go.Sunburst(
-            labels=sunburst_data['labels'],
-            parents=sunburst_data['parents'],
-            values=sunburst_data['values'],
-        ))
+        labels = []
+        values = []
+        for cluster_id, freq in cluster_counts.items():
+            labels.append(str(cluster_id))
+            values.append(freq)
 
-        # Настройка макета
-        fig.update_layout(margin=dict(t=0, l=0, r=0, b=0))
-
-        # Отображаем диаграмму
+        fig = go.Figure(data=[go.Pie(labels=labels, values=values, textinfo='label+percent',
+                                     insidetextorientation='radial'
+                                     )])
         st.write(fig)
-    elif implementation_choice == "Word карта":
-        # Ваш код для отображения Word карты
-        pass
+        st.write(df['question'][0])
+    elif implementation_choice == "Wordcloud":
+        text = 'Fun, fun, awesome, awesome, tubular, astounding, superb, great, amazing, amazing, amazing, amazing'
+
+        # Create and generate a word cloud image:
+        wordcloud = WordCloud().generate(text)
+
+        # Display the generated image:
+        plt.imshow(wordcloud, interpolation='bilinear')
+        plt.axis("off")
+        plt.show()
+        st.pyplot()
     elif implementation_choice == "Гистограмма":
-        pass
+        x = []
+        y = []
+        colors = {'neutrals': 'lightyellow', 'positives': 'lightgreen', 'negatives': 'lightcoral'}
+
+        sent_counts = df['sentiment'].value_counts().to_dict()
+        print(sent_counts)
+        for sent, freq in sent_counts.items():
+            x.append(sent)
+            y.append(freq)
+        color_list = [colors[sent] for sent in x]
+        fig = go.Figure(data=[go.Bar(x=x, y=y, marker=dict(color=color_list))])
+        fig.update_layout(title="Частота значений 'sentiment'")
+
+        st.write(fig)
+        st.write(df['question'][0])
 
