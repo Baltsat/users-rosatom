@@ -7,13 +7,14 @@
 Реализован веб-сервис для семантической кластеризации результатов опросов в сервисе "Мой голос" с использованием технологий исскусственного интеллекта, визуализации результатов и представления выводов, основанных на данных.
 
 # Установка
-- `git clone https://github.com/mansasha21/sftb-rostelecom.git`
+- `git clone https://github.com/Baltsat/users-rosatom.git`
 
 # Запуск
 ```bash
-python train.py && python eval.py
+streamlit run main.py
 ```
 // TODO: docker + streamlit
+// python train.py && python eval.py
 
 # Используемое решение
 
@@ -51,13 +52,13 @@ python train.py && python eval.py
 # Разработчики
 | Имя                  | Роль           | Контакт               |
 |----------------------|----------------|-----------------------|
-| Константин Балцат    | Data Scientist | [t.me/baltsat](https://t.me/baltsat)       |
+| Константин Балцат    | Data Analyse | [t.me/baltsat](https://t.me/baltsat)       |
 | ---                  | ---            | ---                   |
-| Александр Серов      | Data Scientist | [t.me/thegoldian](https://t.me/thegoldian) |
+| Александр Серов      | Machine Learning | [t.me/thegoldian](https://t.me/thegoldian) |
 | ---                  | ---            | ---                   |
-| Артем Тарасов        | Data Scientist | [t.me/tarasovxx](https://t.me/tarasovxx)   |
+| Артем Тарасов        | Frontend | [t.me/tarasovxx](https://t.me/tarasovxx)   |
 | ---                  | ---            | ---                   |
-| Ванданов Сергей      | Data Scientist | [t.me/rapid76](https://t.me/@rapid76)      |
+| Ванданов Сергей      | Machine Learning | [t.me/rapid76](https://t.me/@rapid76)      |
 | ---                  | ---            | ---                   |
-| Даниил Галимов       | Data Scientist | [t.me/Dan_Gan](https://t.me/Dan_Gan)  |
+| Даниил Галимов       | Data Analyse | [t.me/Dan_Gan](https://t.me/Dan_Gan)  |
 | ---                  | ---            | ---                   |
