@@ -1,5 +1,5 @@
-<img width="657" alt="image" src="https://github.com/Baltsat/users-rosatom/assets/42536677/90141bd4-a8b7-47cd-b73a-c2cb65ad6ee9">  
-![logo](https://github.com/Baltsat/users-rosatom/assets/42536677/8b3b5aa5-b56b-4c83-8681-6ca52d15f972)
+<img width="657" alt="image" src="https://github.com/Baltsat/users-rosatom/assets/42536677/8b3b5aa5-b56b-4c83-8681-6ca52d15f972">  
+
 
 
 # Улучшение представлений результатов в сервисе «Мой голос» от команды Users
