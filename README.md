@@ -68,7 +68,7 @@ streamlit run main.py
 | ---                  | ---            | ---                   |
 | Александр Серов      | Machine Learning | [t.me/thegoldian](https://t.me/thegoldian) |
 | ---                  | ---            | ---                   |
-| Артем Тарасов        | Frontend | [t.me/tarasovxx](https://t.me/tarasovxx)   |
+| Артем Тарасов        | Full Stack | [t.me/tarasovxx](https://t.me/tarasovxx)   |
 | ---                  | ---            | ---                   |
 | Ванданов Сергей      | Machine Learning | [t.me/rapid76](https://t.me/@rapid76)      |
 | ---                  | ---            | ---                   |
