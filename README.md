@@ -50,14 +50,15 @@ streamlit run main.py
 
 # Сравнение моделей
 
-| Model                                                  | Desc                                                                                                               | F1 Macro | Time    |
-|--------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|----------|---------|
-| NaiveModel                                             | каждое слово = новый кластер                                                                                        | 0.81     | 10 ms   |
-| LevensteinSimilarityModel                              | Если ответы схожие более, чем на 63% = образуют один кластер                                                         | 0.87     | 102 ms  |
-| LevenshteinSimilatity + Processing Lemmatization, delete punct |                                                                                                                    0.89     | 1 s     |
-| SelfClusterModel#1 + SentimentTransformer              | (Bert-Multilingual + PCA + KMeans ) + (TweetNLP + xlm-roberta-multilingual)                                         | 0.92     |         |
-| SelfClusterModel#2                                     | text2vec-multilingual + UMAP + HBDSCAN + CountVectorizator + KeyBert                                                 | 0.94     | 6 s     |
-| SelfClusterModel#2 + SentimentTransformer              |                                                                                                                    0.97     |         |
+| Model  Description                                                | F1 Macro | Time    |
+|--------------------------------------------------------|----------|---------|
+| NaiveModel         каждое слово = новый кластер                                     | 0.81     | 10 ms   |
+| LevensteinSimilarityModel    Если ответы схожие более, чем на 63% = образуют один кластер                          | 0.87     | 102 ms  |
+| LevenshteinSimilatity + Processing Lemmatization, delete punct | 0.89     | 1 s     |
+| SelfClusterModel#1 + SentimentTransformer (Bert-Multilingual + PCA + KMeans ) + (TweetNLP + xlm-roberta-multilingual) | 0.92     |         |
+| SelfClusterModel#2                                     | 0.94     | 6 s     |
+| SelfClusterModel#2 + SentimentTransformer              | 0.97     |         |
+
 
 
 
@@ -82,7 +83,7 @@ streamlit run main.py
 ### Структура данных
 
 Структура базы данных включает в себя следующие поля
-:- `question`: Текст вопроса.
+- `question`: Текст вопроса.
 - `answer`: Текст ответа.
 - `sentiment`: Сентимент элемента.
 - `j`: Значение J.
@@ -118,4 +119,6 @@ http://localhost:8000/api/qaitems/
 | ---                  | ---            | ---                   |
 | Даниил Галимов       | Data Analyse | [t.me/Dan_Gan](https://t.me/Dan_Gan)  |
 | ---                  | ---            | ---                   |
+
+
 
