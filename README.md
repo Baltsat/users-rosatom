@@ -12,6 +12,8 @@
 Эмоциональная окраска текста с помощью XLM Roberta, обученного на комментариях пользователей- Интерфейс на основе Streamlit
 
 
+# Протестировать сайт
+[https://users-rosatom-v1.streamlit.app](https://users-rosatom-v1.streamlit.app)
 
 # Установка
 - `git clone https://github.com/Baltsat/users-rosatom.git`
