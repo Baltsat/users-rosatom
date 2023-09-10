@@ -1,4 +1,4 @@
-<img width="657" alt="image" src="https://github.com/Baltsat/users-rosatom/assets/42536677/8b3b5aa5-b56b-4c83-8681-6ca52d15f972">  
+!(alttext)[images/logo.png]
 
 
 
