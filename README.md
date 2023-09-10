@@ -1,4 +1,4 @@
-<img width="657" alt="image" src="https://github.com/Baltsat/users-rosatom/assets/42536677/90141bd4-a8b7-47cd-b73a-c2cb65ad6ee9">
+<img width="657" alt="image" src="https://github.com/Baltsat/users-rosatom/assets/42536677/90141bd4-a8b7-47cd-b73a-c2cb65ad6ee9">  
 ![logo](https://github.com/Baltsat/users-rosatom/assets/42536677/8b3b5aa5-b56b-4c83-8681-6ca52d15f972)
 
 
@@ -9,7 +9,8 @@
 Технические особенности:
 Использование мультиязычного BERT для создания векторных представлений текста
 Многоуровневая кластеризация: UMAP -> HDBSCAN -> CountVectorizer -> TF-IDF
-Эмоциональная окраска текста с помощью XLM Roberta, обученного на комментариях пользователей- Интерфейс на основе Streamlit
+- Эмоциональная окраска текста с помощью XLM Roberta, обученного на комментариях пользователей 
+- Интерфейс на основе Streamlit
 
 
 # Пример решения
@@ -42,9 +43,9 @@ streamlit run main.py
 
 `HF Transformers`, `TweetNLP`, `BertTopic` - библиотеки глубокого обучения
 
-`Scikit-Learn`, `UMAP` - фреймворки машинного обучения  
+`Scikit-Learn`, `UMAP`, `KMeans` - фреймворки машинного обучения  
 
-`Plotly`, `Streamlit` - инструменты визуализации  
+`Plotly`, `Streamlit`, `AltChart` - инструменты визуализации  
 
 
 # Сравнение моделей
@@ -72,9 +73,9 @@ streamlit run main.py
 
 Этот проект использует Django и Django Rest Framework для создания API. API предоставляет доступ к информации о вопросах и ответах (QA) и содержит следующие эндпойнты:
 
-## Эндпойнт `/api/qaitems` Этот эндпойнт предоставляет доступ к данным о вопросах и ответах (QA). Он поддерживает следующие методы
+### Эндпойнт `/api/qaitems` Этот эндпойнт предоставляет доступ к данным о вопросах и ответах (QA). Он поддерживает следующие методы
 
-:- `GET`: Получение списка всех элементов QA.
+-  `GET`: Получение списка всех элементов QA.
 
 - `POST`: Создание нового элемента QA.
 
@@ -88,9 +89,20 @@ streamlit run main.py
 - `cluster_id`: Идентификатор кластера.
 - `topic_name`: Название темы.
 
-## Установка и запуск
+### Установка и запуск
 
-Чтобы установить и запустить проект, выполните следующие шаги:1. Клонируйте репозиторий с помощью `git clone`.2. Создайте и активируйте виртуальное окружение.3. Установите зависимости, выполнив команду `pip install -r requirements.txt`.4. Примените миграции базы данных с помощью `python manage.py migrate`.5. Запустите сервер с помощью `python manage.py runserver`.## Примеры использованияПримеры запросов к API:- Получение всех элементов QA:```httpGET http://localhost:8000/api/qaitems/
+Чтобы установить и запустить проект, выполните следующие шаги:
+1. Клонируйте репозиторий с помощью `git clone`.
+2. Создайте и активируйте виртуальное окружение.
+3. Установите зависимости, выполнив команду `pip install -r requirements.txt`.
+4. Примените миграции базы данных с помощью `python manage.py migrate`.
+5. Запустите сервер с помощью `python manage.py runserver`.
+
+## Примеры использования
+
+Примеры запросов к API:
+- Получение всех элементов QA: 
+http://localhost:8000/api/qaitems/
 
 
 # Разработчики
@@ -100,9 +112,10 @@ streamlit run main.py
 | ---                  | ---            | ---                   |
 | Александр Серов      | Machine Learning | [t.me/thegoldian](https://t.me/thegoldian) |
 | ---                  | ---            | ---                   |
-| Артем Тарасов        | Frontend | [t.me/tarasovxx](https://t.me/tarasovxx)   |
+| Артем Тарасов        | Full stack | [t.me/tarasovxx](https://t.me/tarasovxx)   |
 | ---                  | ---            | ---                   |
 | Ванданов Сергей      | Machine Learning | [t.me/rapid76](https://t.me/@rapid76)      |
 | ---                  | ---            | ---                   |
 | Даниил Галимов       | Data Analyse | [t.me/Dan_Gan](https://t.me/Dan_Gan)  |
 | ---                  | ---            | ---                   |
+
