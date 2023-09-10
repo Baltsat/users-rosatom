@@ -41,8 +41,11 @@ streamlit run main.py
 # Стек используемых технологий:
 
 `Python3`, `git`, `GitHub` - инструменты разработки
+
 `HF Transformers`, `TweetNLP`, `BertTopic` - библиотеки глубокого обучения
+
 `Scikit-Learn`, `UMAP` - фреймворки машинного обучения  
+
 `Plotly`, `Streamlit` - инструменты визуализации  
 
 
