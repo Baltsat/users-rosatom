@@ -38,7 +38,7 @@ with st.sidebar:
         min_value=1,  # Минимальное значение
         step=1,  # Шаг изменения (только целые числа)
     )
-    implementation_choice = st.selectbox("Выберите реализацию:", ["default", "Список кластеров", "Sunburst", "Wordcloud", "Гистограмма"])
+    implementation_choice = st.selectbox("Выберите реализацию:", ["default", "Список кластеров", "Sunburst", "Wordcloud", "Гистограмма", "BubbleCluster"])
 
 
 show_data = False
@@ -95,13 +95,15 @@ else:
     @st.cache_data
     def clusterRelese(json_data):
         clustering = ClusteringAndProcessing()
-        csv_data = clustering.get_processed_file_in_CSV(json_data, cluster_count)
+        csv_data, chrts = clustering.get_processed_file_in_CSV(json_data, cluster_count)
         # Здесь clustering - csv
         df = csv_data
-        return df
+        return df, chrts
 
-    if (json_data):
-        df = clusterRelese(json_data)
+
+    chrts = None
+    if json_data:
+        df, chrts = clusterRelese(json_data)
 
     if df is not None:
 
@@ -109,15 +111,15 @@ else:
             # Отображаем список кластеров
             show_info_instance._display_content(df, cluster_count)
 
-        elif implementation_choice == "Sunburst":
+        elif df is not None and implementation_choice == "Sunburst":
 
-
-            cluster_counts = df['cluster_id'].value_counts().to_dict()
+            cluster_counts = df['topic_name'].value_counts().to_dict()
 
             labels = []
             values = []
             for cluster_id, freq in cluster_counts.items():
-                labels.append(str(cluster_id))
+                print(len(df['question'][0]))
+                labels.append(cluster_id[len(df['question'][0]):])
                 values.append(freq)
 
             fig = go.Figure(data=[go.Pie(labels=labels, values=values, textinfo='label+percent',
@@ -125,10 +127,11 @@ else:
                                          )])
             st.write(fig)
             st.write(df['question'][0])
-        elif implementation_choice == "Wordcloud":
+        elif df is not None and implementation_choice == "Wordcloud":
             words_inf = df['topic_name'].value_counts().to_dict()
 
-            words = list(words_inf.keys())
+            words = [word[len(df['question'][0]):] for word in list(words_inf.keys())]
+
             print(words)
             text = ', '.join(words)
 
@@ -140,7 +143,7 @@ else:
             ax.imshow(wordcloud, interpolation='bilinear')
             ax.axis("off")
             st.pyplot(fig)
-        elif implementation_choice == "Гистограмма":
+        elif df is not None and implementation_choice == "Гистограмма":
             x = []
             y = []
             colors = {'neutrals': 'lightyellow', 'positives': 'lightgreen', 'negatives': 'lightcoral'}
@@ -156,3 +159,13 @@ else:
 
             st.write(fig)
             st.write(df['question'][0])
+        elif implementation_choice == "BubbleCluster":
+            tab1, tab2 = st.tabs(["Кластеризация в 2д пространстве", "Другой тип кластеризации"])
+
+            with tab1:
+                # Use the Streamlit theme.
+                # This is the default. So you can also omit the theme argument.
+                st.altair_chart(chrts.interactive(), theme="streamlit", use_container_width=True)
+            with tab2:
+                # Use the native Altair theme.
+                st.altair_chart(chrts.interactive(), theme=None, use_container_width=True)

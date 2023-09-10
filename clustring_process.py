@@ -13,7 +13,10 @@ import pickle
 import json
 import os
 import subprocess
-from umap import UMAP
+# from umap import UMAP
+import umap.umap_ as UMAP
+import altair as alt
+
 from sklearn.feature_extraction.text import CountVectorizer
 from bertopic.representation import KeyBERTInspired
 from hdbscan import HDBSCAN
@@ -23,8 +26,8 @@ from bertopic import BERTopic
 class ModelCluster:
     def __init__(self):
         representation_model = KeyBERTInspired()
-        umap_model = UMAP(n_neighbors=4, n_components=3, min_dist=0.0, metric='chebyshev',
-                          low_memory=True)  # chebyshev manhattan
+        umap_model = UMAP.UMAP(n_neighbors=4, n_components=3, min_dist=0.0, metric='chebyshev',
+                               low_memory=True)  # chebyshev manhattan
         embedding_model = pipeline("feature-extraction", model="shibing624/text2vec-base-multilingual")
         hdbscan_model = HDBSCAN(min_cluster_size=2, min_samples=1, metric='euclidean', prediction_data=True)
         vectorizer_model = CountVectorizer(min_df=1, ngram_range=(1, 3))
@@ -53,7 +56,7 @@ class ModelCluster:
             question: dict
         '''
         question['answers'] = self.merge_duplicate_answers(question)
-        data = [question['question']+" "+answer['answer'] for answer in question['answers']]
+        data = [question['question'] + " " + answer['answer'] for answer in question['answers']]
         topics, probs = self.topic_model.fit_transform(data)
         # top_prob = zip(topics, probs)
         # res = []
@@ -77,7 +80,6 @@ class ModelCluster:
             proc_answers.append(answer)
 
         question['answers'] = proc_answers
-
 
         return question
 
@@ -104,6 +106,7 @@ class ModelCluster:
         answers = [{'answer': answer, 'count': count} for answer, count in unique_answers.items()]
 
         return answers
+
 
 class ClusteringAndProcessing:
     def __init__(self):
@@ -140,7 +143,7 @@ class ClusteringAndProcessing:
                 gt_idx = di.get(sentiment, 3)
                 gt[gt_idx] += 1
 
-                batch_answer['cluster'] = answer # TODO: processed answer
+                batch_answer['cluster'] = answer  # TODO: processed answer
                 batch_answer['sentiment_our'] = result
 
             data.append(batch)
@@ -154,13 +157,44 @@ class ClusteringAndProcessing:
         kmeans_model = KMeans(n_clusters=n_clusters, random_state=0)
         classes = kmeans_model.fit_predict(embeds_pc).tolist()
         return list(map(str, classes))
-        # df_clust.columns = df_clust.columns.astype(str)
-        # generate_chart(df_clust.iloc[:sample], '0', '1', lbl='on', color='cluster', title='Clustering with 2 Clusters')
 
     def _get_topic_name(self, json_data):
         print(f"!!!!!!!!!!!!!!!!!! {json_data}")
-        return ModelCluster().prediction_cluster(json_data)#["Topic_name"]
+        return ModelCluster().prediction_cluster(json_data)  # ["Topic_name"]
 
+    def _generate_chart(self, df_c, xcol, ycol, lbl='on', color='basic', title=''):
+        chart = alt.Chart(df_c).mark_circle(size=500).encode(
+            x=
+            alt.X(xcol,
+                  scale=alt.Scale(zero=False),
+                  axis=alt.Axis(labels=False, ticks=False, domain=False)
+                  ),
+
+            y=
+            alt.Y(ycol,
+                  scale=alt.Scale(zero=False),
+                  axis=alt.Axis(labels=False, ticks=False, domain=False)
+                  ),
+
+            color=alt.value('#333293') if color == 'basic' else color,
+            tooltip=['answer', 'sentiment']
+        )
+
+        if lbl == 'on':
+            text = chart.mark_text(align='left', baseline='middle', dx=15, size=13, color='black').encode(text='answer',
+                                                                                                          color=alt.value(
+                                                                                                              'black'))
+        else:
+            text = chart.mark_text(align='left', baseline='middle', dx=10).encode()
+
+        result = (chart + text).configure(background="#FDF7F0"
+                                          ).properties(
+            width=800,
+            height=500,
+            title=title
+        ).configure_legend(
+            orient='bottom', titleFontSize=18, labelFontSize=18)
+        return result
     def get_processed_file_in_CSV(self, json_data, cluster_count: int = 5):
         """
         :param json_data: Json data
@@ -201,6 +235,21 @@ class ClusteringAndProcessing:
 
         embeds_pc2 = get_pc(embedings, PCA_EMB)
         clusters = self._get_cluster_id(embeds_pc2, cluster_count)
+        newchart_df = pd.DataFrame(columns=['answer','cluster','embed'])
+        for i in range(len(clusters)):
+            chart_df = {
+                           'answer': answers[i],
+                           'sentiment': sentiments[i],
+                           'cluster': clusters[i],  # cluster_id
+                           'embed': embeds_pc2[i]
+                           }
+
+            newchart_df = pd.concat([newchart_df, pd.DataFrame([chart_df])], ignore_index=True)
+        newchart_df = pd.concat([newchart_df, pd.DataFrame(embeds_pc2)], axis=1)
+        newchart_df.columns = newchart_df.columns.astype(str)
+        #newchart_df.to_csv("./data/test.csv")
+        alt_charts = self._generate_chart(newchart_df, '0', '1', lbl='on', color='cluster', title='Кластеризация')
+        # alt_charts.save('./data/chart.html')
         topics = self._get_topic_name(json_data)
         print(f"&&&&&&&&&&&&&&&&& {topics}")
         print('\n\n\n\n')
@@ -215,11 +264,19 @@ class ClusteringAndProcessing:
                        'answer': answers[i],
                        'sentiment': sentiments[i],
                        'j': js[i],
-                       'cluster_id': clusters[i], # cluster_id
-                       'topic_name': topic_name # topics['answers'] == answers[i] # TODO: fix topics clustering to assign name
+                       'cluster_id': clusters[i],  # cluster_id
+                       'topic_name': topic_name
+                       # topics['answers'] == answers[i] # TODO: fix topics clustering to assign name
                        }
             print(f"^^^^^^^^^^^^^^ {new_row}")
             new_row_df = pd.DataFrame([new_row])
             df = pd.concat([df, new_row_df], ignore_index=True)
 
-        return df
+        return df, alt_charts
+
+if __name__ == "__main__":
+    mc = ClusteringAndProcessing()
+    with open("./data/all_649.json", encoding='utf-8-sig') as json_file:
+        loaded = json.load(json_file)
+        df, alt_charts = mc.get_processed_file_in_CSV(loaded)
+        df.to_csv("./data/result_649.csv", index=False)

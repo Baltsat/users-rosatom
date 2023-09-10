@@ -13,13 +13,12 @@ class ShowClasters:
 
         for cluster_id, group_data in grouped:
             if (i < cluster_count):
-                with st.expander(f'Кластер {cluster_id}'):
+                s = "Кластер" + " " + '\'' + group_data['topic_name'].iloc[0] + '\''
+                with st.expander(s):
                     for index, row in group_data.iterrows():
                         answer = row['answer']
                         st.write(f'Answer: {answer}')
                         # Дополнительные данные о кластере, если они есть, могут быть отображены здесь
                 i += 1
-
-
 
 
