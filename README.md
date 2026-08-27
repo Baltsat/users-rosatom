@@ -1,120 +1,88 @@
-# Улучшение представлений результатов в сервисе «Мой голос» от команды Users
+# My Voice — clustering open-ended survey answers by meaning
 
-Мы предлагаем решение для точного объединения ответов пользователей по смыслу в сервисе "Мой Голос" с помощью передового подхода к обработке текста Bert и визуализации результатов через веб-интерфейс на основе Streamlit. Решение выделяется тем, что устойчиво к ошибкам и опечаткам пользователей, а также учитывает даже латентные смысловые средства: эмоджи и пунктуацию.
+Hackathon solution for Rosatom's "My Voice" service, by team **Users**. The service collects free-text answers from employees; the problem is grouping thousands of differently-worded answers that mean the same thing.
 
-Технические особенности:
-Использование мультиязычного BERT для создания векторных представлений текста
-Многоуровневая кластеризация: UMAP -> HDBSCAN -> CountVectorizer -> TF-IDF
-- Эмоциональная окраска текста с помощью XLM Roberta, обученного на комментариях пользователей 
-- Интерфейс на основе Streamlit
+We group them with multilingual BERT embeddings and a layered clustering pipeline, then present the result in a web interface. The approach is robust to typos and misspellings, and it keeps latent signal that naive matching throws away — emoji and punctuation.
 
-
-# Пример решения
 ![demo](https://github.com/Baltsat/users-rosatom/blob/main/data/gf.gif)
 
-# Установка
-- `git clone https://github.com/Baltsat/users-rosatom.git`
-Необходим Python версии 3.9 и выше.
-`pip install -r requirements.txt`
-# Запуск
+## Model comparison
+
+| Model | F1 macro | Time |
+| --- | --- | --- |
+| Naive — every word is its own cluster | 0.81 | 10 ms |
+| Levenshtein similarity — answers >63% similar form one cluster | 0.87 | 102 ms |
+| Levenshtein + preprocessing (lemmatisation, punctuation removal) | 0.89 | 1 s |
+| SelfClusterModel #1 + sentiment transformer (BERT-multilingual + PCA + KMeans, TweetNLP + XLM-RoBERTa) | 0.92 | |
+| SelfClusterModel #2 | 0.94 | 6 s |
+| **SelfClusterModel #2 + sentiment transformer** | **0.97** | |
+
+## How it works
+
+-   Preprocessing of raw answers: punctuation removal, profanity filtering, lemmatisation.
+-   Fine-tuned deep-learning models on the processed data: TweetNLP, XLM-RoBERTa multilingual sentiment classification, BERTopic.
+-   Multi-stage clustering: UMAP → HDBSCAN → CountVectorizer → TF-IDF.
+-   Sentiment scoring with XLM-RoBERTa trained on user comments.
+-   Clustering visualised through a Streamlit interface.
+
+The combination of BERT-based text processing, Streamlit visualisation, and handling of both Russian and English gives accuracy without costing usability.
+
+## Stack
+
+`Python 3`, `git`, `GitHub` — development
+`HF Transformers`, `TweetNLP`, `BERTopic` — deep learning
+`Scikit-Learn`, `UMAP`, `KMeans` — machine learning
+`Plotly`, `Streamlit`, `AltChart` — visualisation
+
+## Install and run
+
+Requires Python 3.9 or newer.
+
 ```bash
+git clone https://github.com/Baltsat/users-rosatom.git
+pip install -r requirements.txt
 streamlit run main.py
 ```
 
-# Используемое решение
+## Notebooks
 
-* Для исходных данных проводится предобработка ответов: удаление пунктуации, фильтрация ненормативной лексики, лемматизация.
-* На обработанных данных файнтюнены модели глубокого обучения, в частности, TweetNLP, XLM ROBERTA SENTIMENT MULTILINGUAL CLASSIFICATION, BertTopic.
+-   `research_models_visualization.ipynb` — gradient-boosting model experiments
+-   `data_preprocess.ipynb` — data preprocessing
 
+## Django API
 
-* Визуализация кластеризации происходит посредством Streamlit. 
+The project uses Django and Django REST Framework to expose the question-and-answer data.
 
-# Уникальность:
+### `/api/qaitems`
 
-Наше уникальное решение объединяет передовой подход к обработке текста с помощью модели Bert, визуализацию результатов через интерфейс Streamlit и способность обрабатывать особенности русского и английского языка, что обеспечивает точность и простоту использования в сервисе "Мой Голос".
+-   `GET` — list all QA items
+-   `POST` — create a new QA item
 
-# Стек используемых технологий:
+### Data structure
 
-`Python3`, `git`, `GitHub` - инструменты разработки
+-   `question` — question text
+-   `answer` — answer text
+-   `sentiment` — sentiment of the item
+-   `j` — J value
+-   `cluster_id` — cluster identifier
+-   `topic_name` — topic name
 
-`HF Transformers`, `TweetNLP`, `BertTopic` - библиотеки глубокого обучения
+### Running the API
 
-`Scikit-Learn`, `UMAP`, `KMeans` - фреймворки машинного обучения  
+1. Clone the repository.
+2. Create and activate a virtual environment.
+3. `pip install -r requirements.txt`
+4. `python manage.py migrate`
+5. `python manage.py runserver`
 
-`Plotly`, `Streamlit`, `AltChart` - инструменты визуализации  
+Example request: `http://localhost:8000/api/qaitems/`
 
+## Team
 
-# Сравнение моделей
-
-| Model  Description                                                | F1 Macro | Time    |
-|--------------------------------------------------------|----------|---------|
-| NaiveModel         каждое слово = новый кластер                                     | 0.81     | 10 ms   |
-| LevensteinSimilarityModel    Если ответы схожие более, чем на 63% = образуют один кластер                          | 0.87     | 102 ms  |
-| LevenshteinSimilatity + Processing Lemmatization, delete punct | 0.89     | 1 s     |
-| SelfClusterModel#1 + SentimentTransformer (Bert-Multilingual + PCA + KMeans ) + (TweetNLP + xlm-roberta-multilingual) | 0.92     |         |
-| SelfClusterModel#2                                     | 0.94     | 6 s     |
-| SelfClusterModel#2 + SentimentTransformer              | 0.97     |         |
-
-
-
-
-
-
-
-# Проводимые исследования
-
-- `research_models_visualization.ipynb` - исследования с моделями градиентного бустинга
-- `data_preprocess.ipynb` - предобработка данных 
-
-# Документация Django API
-
-Этот проект использует Django и Django Rest Framework для создания API. API предоставляет доступ к информации о вопросах и ответах (QA) и содержит следующие эндпойнты:
-
-### Эндпойнт `/api/qaitems` Этот эндпойнт предоставляет доступ к данным о вопросах и ответах (QA). Он поддерживает следующие методы
-
--  `GET`: Получение списка всех элементов QA.
-
-- `POST`: Создание нового элемента QA.
-
-### Структура данных
-
-Структура базы данных включает в себя следующие поля
-- `question`: Текст вопроса.
-- `answer`: Текст ответа.
-- `sentiment`: Сентимент элемента.
-- `j`: Значение J.
-- `cluster_id`: Идентификатор кластера.
-- `topic_name`: Название темы.
-
-### Установка и запуск
-
-Чтобы установить и запустить проект, выполните следующие шаги:
-1. Клонируйте репозиторий с помощью `git clone`.
-2. Создайте и активируйте виртуальное окружение.
-3. Установите зависимости, выполнив команду `pip install -r requirements.txt`.
-4. Примените миграции базы данных с помощью `python manage.py migrate`.
-5. Запустите сервер с помощью `python manage.py runserver`.
-
-## Примеры использования
-
-Примеры запросов к API:
-- Получение всех элементов QA: 
-http://localhost:8000/api/qaitems/
-
-
-# Разработчики
-| Имя                  | Роль           | Контакт               |
-|----------------------|----------------|-----------------------|
-| Константин Балцат    | Data Analyse | [t.me/baltsat](https://t.me/baltsat)       |
-| ---                  | ---            | ---                   |
-| Александр Серов      | Machine Learning | [t.me/thegoldian](https://t.me/thegoldian) |
-| ---                  | ---            | ---                   |
-| Артем Тарасов        | Full stack | [t.me/tarasovxx](https://t.me/tarasovxx)   |
-| ---                  | ---            | ---                   |
-| Ванданов Сергей      | Machine Learning | [t.me/rapid76](https://t.me/@rapid76)      |
-| ---                  | ---            | ---                   |
-| Даниил Галимов       | Data Analyse | [t.me/Dan_Gan](https://t.me/Dan_Gan)  |
-| ---                  | ---            | ---                   |
-
-
-
+| Name | Role | Contact |
+| --- | --- | --- |
+| Konstantin Baltsat | Data analysis | [t.me/baltsat](https://t.me/baltsat) |
+| Aleksandr Serov | Machine learning | [t.me/thegoldian](https://t.me/thegoldian) |
+| Artem Tarasov | Full stack | [t.me/tarasovxx](https://t.me/tarasovxx) |
+| Sergey Vandanov | Machine learning | [t.me/rapid76](https://t.me/rapid76) |
+| Daniil Galimov | Data analysis | [t.me/Dan_Gan](https://t.me/Dan_Gan) |
